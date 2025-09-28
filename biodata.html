@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Biodata Generator Form</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #eaeaea;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      width: 80%;
+      margin: 40px auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 6px;
+      margin-bottom: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    .profile-picture {
+      width: 150px;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 50%;
+      display: block;
+      margin: 10px auto;
+    }
+
+    button {
+      background-color: #337ab7;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #23527c;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #f5f5f5;
+    }
+
+    .biodata-output {
+      margin-top: 40px;
+      display: none;
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+
+    .error {
+      color: red;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Fill Your Biodata</h2>
+    <form id="biodataForm">
+      <label for="name">Full Name:</label>
+      <input type="text" id="name" required />
+
+      <label for="id">ID:</label>
+      <input type="text" id="id" required />
+
+      <label for="email">Email:</label>
+      <input type="email" id="email" required />
+      <div id="emailError" class="error"></div>
+
+      <label for="phone">Phone:</label>
+      <input type="text" id="phone" required />
+      <div id="phoneError" class="error"></div>
+
+      <label for="address">Address:</label>
+      <input type="text" id="address" required />
+
+      <label for="profilePic">Upload Profile Picture:</label>
+      <input type="file" id="profilePic" accept="image/*" required />
+
+      <h3>Education Details</h3>
+      <label>10th Institution:</label>
+      <input type="text" id="school10" />
+      <label>Year of Passing (10th):</label>
+      <input type="text" id="year10" />
+      <label>Marks/Percentage (10th):</label>
+      <input type="text" id="marks10" />
+
+      <label>12th Institution:</label>
+      <input type="text" id="school12" />
+      <label>Year of Passing (12th):</label>
+      <input type="text" id="year12" />
+      <label>Marks/Percentage (12th):</label>
+      <input type="text" id="marks12" />
+
+      <label>Bachelor’s Institution:</label>
+      <input type="text" id="college" />
+      <label>Year of Passing (Bachelor's):</label>
+      <input type="text" id="yearB" />
+      <label>Marks/Percentage (Bachelor's):</label>
+      <input type="text" id="marksB" />
+
+      <h3>Internships</h3>
+      <textarea id="internships" placeholder="List your internships, one per line..."></textarea>
+
+      <h3>Skills</h3>
+      <textarea id="skills" placeholder="List your skills, one per line..."></textarea>
+
+      <button type="submit">Generate Biodata</button>
+    </form>
+
+    <div class="biodata-output" id="outputSection">
+      <hr />
+      <h2>Biodata</h2>
+      <img id="outputPic" class="profile-picture" />
+      <div id="outputInfo"></div>
+      <div id="outputEducation"></div>
+      <div id="outputInternships"></div>
+      <div id="outputSkills"></div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById("biodataForm");
+    const outputSection = document.getElementById("outputSection");
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      // Clear previous errors
+      document.getElementById("emailError").innerText = "";
+      document.getElementById("phoneError").innerText = "";
+
+      // Get values
+      const email = document.getElementById("email").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+
+      // Validate phone number
+      if (!/^\d{10}$/.test(phone)) {
+        document.getElementById("phoneError").innerText = "Phone number must be exactly 10 digits.";
+        return;
+      }
+
+      // Validate email domain
+      if (!/(gmail\.com|yahoo\.com)$/i.test(email)) {
+        document.getElementById("emailError").innerText = "Email must be from gmail.com or yahoo.com.";
+        return;
+      }
+
+      // Load profile pic
+      const pic = document.getElementById("profilePic").files[0];
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        document.getElementById("outputPic").src = e.target.result;
+      };
+      reader.readAsDataURL(pic);
+
+      // Output info
+      const name = document.getElementById("name").value;
+      const id = document.getElementById("id").value;
+      const address = document.getElementById("address").value;
+
+      document.getElementById("outputInfo").innerHTML = `
+        <h3>${name}</h3>
+        <p><strong>ID:</strong> ${id}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Phone:</strong> ${phone}</p>
+        <p><strong>Address:</strong> ${address}</p>
+      `;
+
+      // Education Table
+      const eduHTML = `
+        <h3>Education</h3>
+        <table>
+          <tr>
+            <th>Qualification</th>
+            <th>Institution</th>
+            <th>Year of Passing</th>
+            <th>Marks/Percentage</th>
+          </tr>
+          <tr>
+            <td>10th</td>
+            <td>${document.getElementById("school10").value}</td>
+            <td>${document.getElementById("year10").value}</td>
+            <td>${document.getElementById("marks10").value}</td>
+          </tr>
+          <tr>
+            <td>12th</td>
+            <td>${document.getElementById("school12").value}</td>
+            <td>${document.getElementById("year12").value}</td>
+            <td>${document.getElementById("marks12").value}</td>
+          </tr>
+          <tr>
+            <td>Bachelor's</td>
+            <td>${document.getElementById("college").value}</td>
+            <td>${document.getElementById("yearB").value}</td>
+            <td>${document.getElementById("marksB").value}</td>
+          </tr>
+        </table>
+      `;
+      document.getElementById("outputEducation").innerHTML = eduHTML;
+
+      // Internships
+      const internships = document.getElementById("internships").value
+        .trim()
+        .split("\n")
+        .filter((line) => line.trim() !== "");
+      document.getElementById("outputInternships").innerHTML = `
+        <h3>Internships</h3>
+        <ul>${internships.map((i) => `<li>${i}</li>`).join("")}</ul>
+      `;
+
+      // Skills
+      const skills = document.getElementById("skills").value
+        .trim()
+        .split("\n")
+        .filter((line) => line.trim() !== "");
+      document.getElementById("outputSkills").innerHTML = `
+        <h3>Skills</h3>
+        <ul>${skills.map((s) => `<li>${s}</li>`).join("")}</ul>
+      `;
+
+      outputSection.style.display = "block";
+      outputSection.scrollIntoView({ behavior: "smooth" });
+    });
+  </script>
+</body>
+</html>
